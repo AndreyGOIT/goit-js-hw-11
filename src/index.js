@@ -22,8 +22,11 @@ const API = '30800169-3713389dad872250f057e0e33';
 let keyword = '';
 
 fetchBtn.addEventListener('click', clickHandler);
+
 // //Список параметров строки запроса которые тебе обязательно необходимо указать:
-async function clickHandler() {
+async function clickHandler(event) {
+  event.preventDefault();
+
   keyword = inputField.value;
   console.log(keyword);
   try {
