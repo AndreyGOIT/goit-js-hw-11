@@ -1,11 +1,12 @@
 // Задание - поиск изображений
 // Создай фронтенд часть приложения поиска и просмотра изображ-й по ключевому слову.
 // Добавь оформление элементов интерфейса.
-import Notiflix from 'notiflix';
+import Notiflix, { Notify } from 'notiflix';
 // Описан в документации
 import SimpleLightbox from 'simplelightbox';
 // Дополнительный импорт стилей
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import axios from 'axios';
 
 const inputField = document.querySelector('input');
 const fetchBtn = document.querySelector('button');
@@ -32,18 +33,64 @@ async function clickHandler(event) {
   try {
     const response = await axios.get(`${BASE_URL}`, {
       params: {
-        apikey: API,
-        q: keyword,
-        image_type: photo,
-        orientation: horizontal,
+        key: API,
+        q: 'keyword',
+        image_type: 'photo',
+        orientation: 'horizontal',
         safesearch: true,
       },
     });
     console.log(response);
+    console.log(response.data.hits);
+    const elements = response.data.hits;
+    if (elements === {}) {
+      Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    }
+    renderList(elements);
   } catch (error) {
     console.error(error);
   }
 }
+async function renderList(elements) {
+  const markup = elements.map(
+    ({
+      webformatURL,
+      largeImageURL,
+      tags,
+      likes,
+      views,
+      comments,
+      downloads,
+    }) =>
+      `<div class="photo-card">
+  <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+  <div class="info">
+    <p class="info-item">
+      <b>Likes</b><span class='likes'>${likes}</span>
+    </p>
+    <p class="info-item">
+      <b>Views</b><span class='views'>${views}</span>
+    </p>
+    <p class="info-item">
+      <b>Comments</b><span class='comments'>${comments}</span>
+    </p>
+    <p class="info-item">
+      <b>Downloads</b><span class='downloads'>${downloads}</span>
+    </p>
+  </div>
+</div>;`
+  );
+  console.log(markup);
+}
+
+// .then(elements => {
+//       const markup = elements.map(
+//         ({ likes, views, comments, downloads }) =>
+//           `<li id=${id}><p>Likes: <span class='likes'>${likes}</span></p>`
+//       );
+//     })
 
 // async function fetchEvent() {
 //   keyword = inputField.value;
