@@ -10,10 +10,10 @@ import axios from 'axios';
 
 const inputField = document.querySelector('input');
 const fetchBtn = document.querySelector('button');
-const listOfGallery = document.querySelector('.list');
+const listOfGallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
 
-loadMoreBtn.style.display = 'none';
+// loadMoreBtn.style.display = 'none';
 // // В качестве бэкенда используй публичный API сервиса Pixabay.
 // // Зарегистрируйся, получи свой уникальный ключ доступа и ознакомься с документацией.
 const BASE_URL = 'https://pixabay.com/api/';
@@ -43,6 +43,7 @@ async function clickHandler(event) {
     console.log(response);
     console.log(response.data.hits);
     const elements = response.data.hits;
+    // const elements = await response.json();
     if (elements === {}) {
       Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
@@ -64,7 +65,8 @@ async function renderList(elements) {
       comments,
       downloads,
     }) =>
-      `<div class="photo-card">
+      `<a href="${largeImageURL}">
+      <div class="photo-card">
   <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   <div class="info">
     <p class="info-item">
@@ -80,95 +82,98 @@ async function renderList(elements) {
       <b>Downloads</b><span class='downloads'>${downloads}</span>
     </p>
   </div>
-</div>;`
+</div>
+</a>`
   );
   console.log(markup);
+  listOfGallery.insertAdjacentHTML('beforeend', markup);
+  loadMoreBtn.style.display = '';
+  loadMoreBtn.addEventListener('click', getMore);
 }
 
-// .then(elements => {
-//       const markup = elements.map(
-//         ({ likes, views, comments, downloads }) =>
-//           `<li id=${id}><p>Likes: <span class='likes'>${likes}</span></p>`
-//       );
-//     })
+// let lightbox = new SimpleLightbox('.gallery a', {
+//   enableKeboard: true,
+//   docClose: true,
+//   overlay: true,
+//   nav: true,
+//   close: true,
+//   showCounter: true,
+// });
 
-// async function fetchEvent() {
-//   keyword = inputField.value;
-//   console.log(keyword);
-
-//   const params = new URLSearchParams({
-//     apikey: API,
-//     q: keyword,
-//     image_type: photo,
-//     orientation: horizontal,
-//     safesearch: true,
-//   });
-
-//   const response = await fetch(`${BASE_URL}?${params}`);
-//   const users = await response.json();
-//   console.log(users);
-//   return users;
-// }
-
-// async function clickHandler() {
-//   try {
-//     const users = await fetchEvent();
-//     console.log(users);
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// }
-
-// function fetchEvent() {
-//   keyword = inputField.value;
-//   console.log(keyword);
-//   const params = new URLSearchParams({
-//     apikey: API,
-//     q: keyword,
-//     image_type: photo,
-//     orientation: horizontal,
-//     safesearch: true,
-//   });
-
-//   return fetch(`${BASE_URL}?${params}`)
-//     .then(response => {
-//       if (!response.ok) {
-//         throw new Error(response.status);
-//       }
-//       return response.json();
-//     })
-//     .then(elements => {
-//       const markup = elements.map(
-//         ({ likes, views, comments, downloads }) =>
-//           `<li id=${id}><p>Likes: <span class='likes'>${likes}</span></p>`
-//       );
-//     })
-//     .then(console.log(object))
-//     .catch(error => console.log(error));
-// }
-// В ответе будет массив изображений удовлетворивших критериям параметров запроса.
-// Каждое изображение описывается объектом, из которого тебе интересны только
-// следующие свойства:
-// webformatURL - ссылка на маленькое изображение для списка карточек.
-// largeImageURL - ссылка на большое изображение.
-// tags - строка с описанием изображения. Подойдет для атрибута alt.
-// likes - количество лайков.
-// views - количество просмотров.
-// comments - количество комментариев.
-// downloads - количество загрузок.
-
-// Если бэкенд возвращает пустой массив, значит ничего подходящего найдено небыло.
-// В таком случае показывай уведомление с текстом "Sorry, there are no images
-//matching your search query.Please try again.".
-//Для уведомлений используй библиотеку notiflix.
-
-// Элемент div.gallery изначально есть в HTML документе, и в него необходимо рендерить
-// разметку карточек изображений.При поиске по новому ключевому слову необходимо
-// полностью очищать содержимое галереи, чтобы не смешивать результаты.
-
-// Шаблон разметки карточки одного изображения для галереи.
-
-{
+async function getMore(elements) {
+  // .then(elements => {
+  //       const markup = elements.map(
+  //         ({ likes, views, comments, downloads }) =>
+  //           `<li id=${id}><p>Likes: <span class='likes'>${likes}</span></p>`
+  //       );
+  //     })
+  // async function fetchEvent() {
+  //   keyword = inputField.value;
+  //   console.log(keyword);
+  //   const params = new URLSearchParams({
+  //     apikey: API,
+  //     q: keyword,
+  //     image_type: photo,
+  //     orientation: horizontal,
+  //     safesearch: true,
+  //   });
+  //   const response = await fetch(`${BASE_URL}?${params}`);
+  //   const users = await response.json();
+  //   console.log(users);
+  //   return users;
+  // }
+  // async function clickHandler() {
+  //   try {
+  //     const users = await fetchEvent();
+  //     console.log(users);
+  //   } catch (error) {
+  //     console.log(error.message);
+  //   }
+  // }
+  // function fetchEvent() {
+  //   keyword = inputField.value;
+  //   console.log(keyword);
+  //   const params = new URLSearchParams({
+  //     apikey: API,
+  //     q: keyword,
+  //     image_type: photo,
+  //     orientation: horizontal,
+  //     safesearch: true,
+  //   });
+  //   return fetch(`${BASE_URL}?${params}`)
+  //     .then(response => {
+  //       if (!response.ok) {
+  //         throw new Error(response.status);
+  //       }
+  //       return response.json();
+  //     })
+  //     .then(elements => {
+  //       const markup = elements.map(
+  //         ({ likes, views, comments, downloads }) =>
+  //           `<li id=${id}><p>Likes: <span class='likes'>${likes}</span></p>`
+  //       );
+  //     })
+  //     .then(console.log(object))
+  //     .catch(error => console.log(error));
+  // }
+  // В ответе будет массив изображений удовлетворивших критериям параметров запроса.
+  // Каждое изображение описывается объектом, из которого тебе интересны только
+  // следующие свойства:
+  // webformatURL - ссылка на маленькое изображение для списка карточек.
+  // largeImageURL - ссылка на большое изображение.
+  // tags - строка с описанием изображения. Подойдет для атрибута alt.
+  // likes - количество лайков.
+  // views - количество просмотров.
+  // comments - количество комментариев.
+  // downloads - количество загрузок.
+  // Если бэкенд возвращает пустой массив, значит ничего подходящего найдено небыло.
+  // В таком случае показывай уведомление с текстом "Sorry, there are no images
+  //matching your search query.Please try again.".
+  //Для уведомлений используй библиотеку notiflix.
+  // Элемент div.gallery изначально есть в HTML документе, и в него необходимо рендерить
+  // разметку карточек изображений.При поиске по новому ключевому слову необходимо
+  // полностью очищать содержимое галереи, чтобы не смешивать результаты.
+  // Шаблон разметки карточки одного изображения для галереи.
   /* <div class="photo-card">
   <img src="" alt="" loading="lazy" />
   <div class="info">
