@@ -19,7 +19,7 @@ const loadMoreBtn = document.querySelector('.load-more');
 const BASE_URL = 'https://pixabay.com/api/';
 const API = '30800169-3713389dad872250f057e0e33';
 
-// let pageToFetch = 0;
+let pageToFetch = 0;
 let keyword = '';
 
 fetchBtn.addEventListener('click', clickHandler);
@@ -29,20 +29,28 @@ async function clickHandler(event) {
   event.preventDefault();
 
   keyword = inputField.value;
-  console.log(keyword);
+  const res = keyword.trim();
+  console.log(res);
+  if (res === 0 || res === '') {
+    return Notify.failure('Input field has no value');
+  }
   try {
     const response = await axios.get(`${BASE_URL}`, {
       params: {
         key: API,
-        q: 'keyword',
+        q: 'res',
         image_type: 'photo',
         orientation: 'horizontal',
         safesearch: true,
+        page: 1,
+        per_page: 40,
       },
     });
     console.log(response);
     console.log(response.data.hits);
     const elements = response.data.hits;
+    const totalHits = response.data.totalHits;
+    Notify.info(`Hooray! We found ${totalHits} images.`);
     // const elements = await response.json();
     if (elements === {}) {
       Notify.failure(
