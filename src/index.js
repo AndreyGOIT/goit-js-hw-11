@@ -13,7 +13,7 @@ const fetchBtn = document.querySelector('button');
 const listOfGallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
 
-// loadMoreBtn.style.display = 'none';
+loadMoreBtn.style.display = 'none';
 // // В качестве бэкенда используй публичный API сервиса Pixabay.
 // // Зарегистрируйся, получи свой уникальный ключ доступа и ознакомься с документацией.
 const BASE_URL = 'https://pixabay.com/api/';
@@ -21,6 +21,7 @@ const API = '30800169-3713389dad872250f057e0e33';
 
 let pageToFetch = 0;
 let keyword = '';
+let rest = 0;
 
 fetchBtn.addEventListener('click', clickHandler);
 
@@ -28,6 +29,7 @@ fetchBtn.addEventListener('click', clickHandler);
 async function clickHandler(event) {
   event.preventDefault();
 
+  pageToFetch += 1;
   keyword = inputField.value;
   const res = keyword.trim();
   console.log(res);
@@ -42,7 +44,7 @@ async function clickHandler(event) {
         image_type: 'photo',
         orientation: 'horizontal',
         safesearch: true,
-        page: 1,
+        page: pageToFetch,
         per_page: 40,
       },
     });
@@ -50,30 +52,41 @@ async function clickHandler(event) {
     console.log(response.data.hits);
     const elements = response.data.hits;
     const totalHits = response.data.totalHits;
-    Notify.info(`Hooray! We found ${totalHits} images.`);
-    // const elements = await response.json();
+    console.log(totalHits);
+    if (pageToFetch === 1) {
+      Notify.info(`Hooray! We found ${totalHits} images.`);
+    }
+
     if (elements === {}) {
       Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
     }
-    renderList(elements);
+    rest += 40;
+    if (rest <= totalHits) {
+      return renderList(elements);
+    }
+    loadMoreBtn.style.display = 'none';
+    Notify.failure(
+      "We're sorry, but you've reached the end of search results."
+    );
   } catch (error) {
     console.error(error);
   }
 }
 async function renderList(elements) {
-  const markup = elements.map(
-    ({
-      webformatURL,
-      largeImageURL,
-      tags,
-      likes,
-      views,
-      comments,
-      downloads,
-    }) =>
-      `<a href="${largeImageURL}">
+  const markup = elements
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) =>
+        `<a href="${largeImageURL}">
       <div class="photo-card">
   <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   <div class="info">
@@ -92,97 +105,100 @@ async function renderList(elements) {
   </div>
 </div>
 </a>`
-  );
-  console.log(markup);
+    )
+    .join('');
+
+  // console.log(markup);
   listOfGallery.insertAdjacentHTML('beforeend', markup);
+
+  new SimpleLightbox('.gallery a', {
+    enableKeboard: true,
+    docClose: true,
+    overlay: true,
+    nav: true,
+    close: true,
+    showCounter: true,
+  });
   loadMoreBtn.style.display = '';
-  loadMoreBtn.addEventListener('click', getMore);
+  loadMoreBtn.addEventListener('click', clickHandler);
 }
 
-// let lightbox = new SimpleLightbox('.gallery a', {
-//   enableKeboard: true,
-//   docClose: true,
-//   overlay: true,
-//   nav: true,
-//   close: true,
-//   showCounter: true,
-// });
+// async function getOnMore(elements) {
 
-async function getMore(elements) {
-  // .then(elements => {
-  //       const markup = elements.map(
-  //         ({ likes, views, comments, downloads }) =>
-  //           `<li id=${id}><p>Likes: <span class='likes'>${likes}</span></p>`
-  //       );
-  //     })
-  // async function fetchEvent() {
-  //   keyword = inputField.value;
-  //   console.log(keyword);
-  //   const params = new URLSearchParams({
-  //     apikey: API,
-  //     q: keyword,
-  //     image_type: photo,
-  //     orientation: horizontal,
-  //     safesearch: true,
-  //   });
-  //   const response = await fetch(`${BASE_URL}?${params}`);
-  //   const users = await response.json();
-  //   console.log(users);
-  //   return users;
-  // }
-  // async function clickHandler() {
-  //   try {
-  //     const users = await fetchEvent();
-  //     console.log(users);
-  //   } catch (error) {
-  //     console.log(error.message);
-  //   }
-  // }
-  // function fetchEvent() {
-  //   keyword = inputField.value;
-  //   console.log(keyword);
-  //   const params = new URLSearchParams({
-  //     apikey: API,
-  //     q: keyword,
-  //     image_type: photo,
-  //     orientation: horizontal,
-  //     safesearch: true,
-  //   });
-  //   return fetch(`${BASE_URL}?${params}`)
-  //     .then(response => {
-  //       if (!response.ok) {
-  //         throw new Error(response.status);
-  //       }
-  //       return response.json();
-  //     })
-  //     .then(elements => {
-  //       const markup = elements.map(
-  //         ({ likes, views, comments, downloads }) =>
-  //           `<li id=${id}><p>Likes: <span class='likes'>${likes}</span></p>`
-  //       );
-  //     })
-  //     .then(console.log(object))
-  //     .catch(error => console.log(error));
-  // }
-  // В ответе будет массив изображений удовлетворивших критериям параметров запроса.
-  // Каждое изображение описывается объектом, из которого тебе интересны только
-  // следующие свойства:
-  // webformatURL - ссылка на маленькое изображение для списка карточек.
-  // largeImageURL - ссылка на большое изображение.
-  // tags - строка с описанием изображения. Подойдет для атрибута alt.
-  // likes - количество лайков.
-  // views - количество просмотров.
-  // comments - количество комментариев.
-  // downloads - количество загрузок.
-  // Если бэкенд возвращает пустой массив, значит ничего подходящего найдено небыло.
-  // В таком случае показывай уведомление с текстом "Sorry, there are no images
-  //matching your search query.Please try again.".
-  //Для уведомлений используй библиотеку notiflix.
-  // Элемент div.gallery изначально есть в HTML документе, и в него необходимо рендерить
-  // разметку карточек изображений.При поиске по новому ключевому слову необходимо
-  // полностью очищать содержимое галереи, чтобы не смешивать результаты.
-  // Шаблон разметки карточки одного изображения для галереи.
-  /* <div class="photo-card">
+// .then(elements => {
+//       const markup = elements.map(
+//         ({ likes, views, comments, downloads }) =>
+//           `<li id=${id}><p>Likes: <span class='likes'>${likes}</span></p>`
+//       );
+//     })
+// async function fetchEvent() {
+//   keyword = inputField.value;
+//   console.log(keyword);
+//   const params = new URLSearchParams({
+//     apikey: API,
+//     q: keyword,
+//     image_type: photo,
+//     orientation: horizontal,
+//     safesearch: true,
+//   });
+//   const response = await fetch(`${BASE_URL}?${params}`);
+//   const users = await response.json();
+//   console.log(users);
+//   return users;
+// }
+// async function clickHandler() {
+//   try {
+//     const users = await fetchEvent();
+//     console.log(users);
+//   } catch (error) {
+//     console.log(error.message);
+//   }
+// }
+// function fetchEvent() {
+//   keyword = inputField.value;
+//   console.log(keyword);
+//   const params = new URLSearchParams({
+//     apikey: API,
+//     q: keyword,
+//     image_type: photo,
+//     orientation: horizontal,
+//     safesearch: true,
+//   });
+//   return fetch(`${BASE_URL}?${params}`)
+//     .then(response => {
+//       if (!response.ok) {
+//         throw new Error(response.status);
+//       }
+//       return response.json();
+//     })
+//     .then(elements => {
+//       const markup = elements.map(
+//         ({ likes, views, comments, downloads }) =>
+//           `<li id=${id}><p>Likes: <span class='likes'>${likes}</span></p>`
+//       );
+//     })
+//     .then(console.log(object))
+//     .catch(error => console.log(error));
+// }
+// В ответе будет массив изображений удовлетворивших критериям параметров запроса.
+// Каждое изображение описывается объектом, из которого тебе интересны только
+// следующие свойства:
+// webformatURL - ссылка на маленькое изображение для списка карточек.
+// largeImageURL - ссылка на большое изображение.
+// tags - строка с описанием изображения. Подойдет для атрибута alt.
+// likes - количество лайков.
+// views - количество просмотров.
+// comments - количество комментариев.
+// downloads - количество загрузок.
+// Если бэкенд возвращает пустой массив, значит ничего подходящего найдено небыло.
+// В таком случае показывай уведомление с текстом "Sorry, there are no images
+//matching your search query.Please try again.".
+//Для уведомлений используй библиотеку notiflix.
+// Элемент div.gallery изначально есть в HTML документе, и в него необходимо рендерить
+// разметку карточек изображений.При поиске по новому ключевому слову необходимо
+// полностью очищать содержимое галереи, чтобы не смешивать результаты.
+// Шаблон разметки карточки одного изображения для галереи.
+/* <div class="photo-card">
   <img src="" alt="" loading="lazy" />
   <div class="info">
     <p class="info-item">
@@ -199,7 +215,7 @@ async function getMore(elements) {
     </p>
   </div>
 </div>; */
-}
+// }
 
 // ПАГИНАЦИЯ
 // Pixabay API поддерживает пагинацию и предоставляет параметры page и per_page.
