@@ -1,7 +1,7 @@
 // Задание - поиск изображений
 // Создай фронтенд часть приложения поиска и просмотра изображ-й по ключевому слову.
 // Добавь оформление элементов интерфейса.
-import Notiflix, { Notify } from 'notiflix';
+import { Notify } from 'notiflix';
 // Описан в документации
 import SimpleLightbox from 'simplelightbox';
 // Дополнительный импорт стилей
@@ -9,10 +9,10 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import axios from 'axios';
 
 const inputField = document.querySelector('input');
-const fetchBtn = document.querySelector('button');
+const form = document.querySelector('.search-form');
 const listOfGallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
-
+console.log(form);
 loadMoreBtn.style.display = 'none';
 // // В качестве бэкенда используй публичный API сервиса Pixabay.
 // // Зарегистрируйся, получи свой уникальный ключ доступа и ознакомься с документацией.
@@ -32,12 +32,12 @@ let gallery = new SimpleLightbox('.gallery a', {
   showCounter: true,
 });
 
-fetchBtn.addEventListener('click', clickHandler);
+form.addEventListener('submit', onSubmit);
 
 // //Список параметров строки запроса которые тебе обязательно необходимо указать:
-async function clickHandler(event) {
+async function onSubmit(event) {
   event.preventDefault();
-
+  listOfGallery.innerHTML = '';
   pageToFetch += 1;
   keyword = inputField.value;
   const res = keyword.trim();
@@ -61,12 +61,13 @@ async function clickHandler(event) {
     console.log(response.data.hits);
     const elements = response.data.hits;
     const totalHits = response.data.totalHits;
+    console.log(elements);
     console.log(totalHits);
     if (pageToFetch === 1) {
       Notify.info(`Hooray! We found ${totalHits} images.`);
     }
-
-    if (elements === {}) {
+    console.log(response.data.hits.length);
+    if (elements.length === 0) {
       Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );

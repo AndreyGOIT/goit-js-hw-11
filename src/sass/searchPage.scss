@@ -12,11 +12,14 @@
   gap: 10px;
   margin: 10px 10px;
   width: 100%;
+  margin-bottom: 40px;
 }
 .info {
   display: flex;
   justify-content: center;
   width: 250px;
+  margin: auto;
+  padding: 10px;
 }
 .info-item {
   display: flex;
@@ -33,9 +36,19 @@
   justify-content: center;
   align-items: center;
   height: 40px;
-  margin: auto;
+  margin: 10 auto;
   background-color: rgb(64, 4, 200);
 }
 .btnText {
   color: #fff;
+}
+b {
+  color: black;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: small;
+}
+.likes {
+  color: black;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: small;
 }
