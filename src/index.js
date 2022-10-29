@@ -23,6 +23,15 @@ let pageToFetch = 0;
 let keyword = '';
 let rest = 0;
 
+let gallery = new SimpleLightbox('.gallery a', {
+  enableKeboard: true,
+  docClose: true,
+  overlay: true,
+  nav: true,
+  close: true,
+  showCounter: true,
+});
+
 fetchBtn.addEventListener('click', clickHandler);
 
 // //Список параметров строки запроса которые тебе обязательно необходимо указать:
@@ -74,6 +83,7 @@ async function clickHandler(event) {
     console.error(error);
   }
 }
+
 async function renderList(elements) {
   const markup = elements
     .map(
@@ -108,17 +118,10 @@ async function renderList(elements) {
     )
     .join('');
 
-  // console.log(markup);
   listOfGallery.insertAdjacentHTML('beforeend', markup);
 
-  new SimpleLightbox('.gallery a', {
-    enableKeboard: true,
-    docClose: true,
-    overlay: true,
-    nav: true,
-    close: true,
-    showCounter: true,
-  });
+  gallery.refresh();
+
   loadMoreBtn.style.display = '';
   loadMoreBtn.addEventListener('click', clickHandler);
 }
