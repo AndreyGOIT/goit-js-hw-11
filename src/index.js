@@ -1,10 +1,5 @@
-// Задание - поиск изображений
-// Создай фронтенд часть приложения поиска и просмотра изображ-й по ключевому слову.
-// Добавь оформление элементов интерфейса.
 import { Notify } from 'notiflix';
-// Описан в документации
 import SimpleLightbox from 'simplelightbox';
-// Дополнительный импорт стилей
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import axios from 'axios';
 
@@ -12,10 +7,9 @@ const inputField = document.querySelector('input');
 const form = document.querySelector('.search-form');
 const listOfGallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
-console.log(form);
+
 loadMoreBtn.style.display = 'none';
-// // В качестве бэкенда используй публичный API сервиса Pixabay.
-// // Зарегистрируйся, получи свой уникальный ключ доступа и ознакомься с документацией.
+
 const BASE_URL = 'https://pixabay.com/api/';
 const API = '30800169-3713389dad872250f057e0e33';
 
@@ -34,16 +28,17 @@ let gallery = new SimpleLightbox('.gallery a', {
 
 form.addEventListener('submit', onSubmit);
 
-// //Список параметров строки запроса которые тебе обязательно необходимо указать:
 async function onSubmit(event) {
   event.preventDefault();
 
   listOfGallery.innerHTML = '';
-  pageToFetch += 1;
+  pageToFetch = 1;
+
   keyword = inputField.value;
   const result = keyword.trim();
-  console.log(result);
+
   if (result === '') {
+    loadMoreBtn.style.display = 'none';
     return Notify.failure('Input field has no value');
   }
   try {
@@ -58,24 +53,24 @@ async function onSubmit(event) {
         per_page: 40,
       },
     });
-    console.log(response);
-    console.log(response.data.hits);
+
     const elements = response.data.hits;
     const totalHits = response.data.totalHits;
-    console.log(elements);
-    console.log(totalHits);
 
-    console.log(response.data.hits.length);
     if (elements.length === 0) {
+      loadMoreBtn.style.display = 'none';
       return Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
     }
+
     Notify.info(`Hooray! We found ${totalHits} images.`);
+
     rest += 40;
     if (rest <= totalHits) {
       return renderList(elements);
     }
+
     loadMoreBtn.style.display = 'none';
     Notify.failure(
       "We're sorry, but you've reached the end of search results."
@@ -86,7 +81,7 @@ async function onSubmit(event) {
 }
 
 async function renderList(elements) {
-  const markup = elements
+  const markup = await elements
     .map(
       ({
         webformatURL,
@@ -133,7 +128,6 @@ async function fetchMoreItems(event) {
   pageToFetch += 1;
   keyword = inputField.value;
   const result = keyword.trim();
-  console.log(result);
 
   try {
     const response = await axios.get(`${BASE_URL}`, {
@@ -147,16 +141,12 @@ async function fetchMoreItems(event) {
         per_page: 40,
       },
     });
-    console.log(response);
-    console.log(response.data.hits);
+
     const elements = response.data.hits;
     const totalHits = response.data.totalHits;
-    console.log(elements);
-    console.log(totalHits);
-
-    console.log(response.data.hits.length);
 
     rest += 40;
+    console.log(rest);
     if (rest <= totalHits) {
       return renderList(elements);
     }

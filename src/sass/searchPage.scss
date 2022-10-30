@@ -16,7 +16,7 @@
 }
 .info {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   width: 250px;
   margin: auto;
   padding: 10px;
@@ -24,10 +24,12 @@
 .info-item {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  margin: auto;
 }
 .photo-card {
   width: 250px;
-  height: 200px;
+  height: 250px;
   display: flex;
   flex-direction: column;
 }
@@ -45,10 +47,14 @@
 b {
   color: black;
   font-family: 'Courier New', Courier, monospace;
-  font-size: small;
+  font-size: 12px;
 }
-.likes {
+span {
   color: black;
   font-family: 'Courier New', Courier, monospace;
-  font-size: small;
+  font-size: 14px;
+  margin-top: 10px;
+}
+a {
+  text-decoration: none;
 }
