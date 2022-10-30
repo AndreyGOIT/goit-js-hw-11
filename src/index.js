@@ -38,19 +38,19 @@ form.addEventListener('submit', onSubmit);
 async function onSubmit(event) {
   event.preventDefault();
 
-  // listOfGallery.innerHTML = '';
+  listOfGallery.innerHTML = '';
   pageToFetch += 1;
   keyword = inputField.value;
-  const res = keyword.trim();
-  console.log(res);
-  if (res === 0 || res === '') {
+  const result = keyword.trim();
+  console.log(result);
+  if (result === '') {
     return Notify.failure('Input field has no value');
   }
   try {
     const response = await axios.get(`${BASE_URL}`, {
       params: {
         key: API,
-        q: 'res',
+        q: result,
         image_type: 'photo',
         orientation: 'horizontal',
         safesearch: true,
@@ -64,15 +64,14 @@ async function onSubmit(event) {
     const totalHits = response.data.totalHits;
     console.log(elements);
     console.log(totalHits);
-    if (pageToFetch === 1) {
-      Notify.info(`Hooray! We found ${totalHits} images.`);
-    }
+
     console.log(response.data.hits.length);
     if (elements.length === 0) {
-      Notify.failure(
+      return Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
     }
+    Notify.info(`Hooray! We found ${totalHits} images.`);
     rest += 40;
     if (rest <= totalHits) {
       return renderList(elements);
@@ -125,7 +124,49 @@ async function renderList(elements) {
   gallery.refresh();
 
   loadMoreBtn.style.display = '';
-  loadMoreBtn.addEventListener('click', onSubmit);
+  loadMoreBtn.addEventListener('click', fetchMoreItems);
+}
+
+async function fetchMoreItems(event) {
+  event.preventDefault();
+
+  pageToFetch += 1;
+  keyword = inputField.value;
+  const result = keyword.trim();
+  console.log(result);
+
+  try {
+    const response = await axios.get(`${BASE_URL}`, {
+      params: {
+        key: API,
+        q: result,
+        image_type: 'photo',
+        orientation: 'horizontal',
+        safesearch: true,
+        page: pageToFetch,
+        per_page: 40,
+      },
+    });
+    console.log(response);
+    console.log(response.data.hits);
+    const elements = response.data.hits;
+    const totalHits = response.data.totalHits;
+    console.log(elements);
+    console.log(totalHits);
+
+    console.log(response.data.hits.length);
+
+    rest += 40;
+    if (rest <= totalHits) {
+      return renderList(elements);
+    }
+    loadMoreBtn.style.display = 'none';
+    Notify.failure(
+      "We're sorry, but you've reached the end of search results."
+    );
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // В ответе будет массив изображений удовлетворивших критериям параметров запроса.
