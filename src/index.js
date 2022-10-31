@@ -151,7 +151,8 @@ async function fetchMoreItems(event) {
       return renderList(elements);
     }
     loadMoreBtn.style.display = 'none';
-    Notify.failure(
+    rest = 0;
+    return Notify.failure(
       "We're sorry, but you've reached the end of search results."
     );
   } catch (error) {
